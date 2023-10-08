@@ -4,7 +4,7 @@ import os
 
 load_dotenv()
 
-CHANNEL_ID = 1138803439690846211
+CHANNEL_ID = os.enivon['OP_START_CHANNEL_ID']
 BOT_SECRET = os.environ['OWLBOT_SECRET']
 
 class MyClient(discord.Client):

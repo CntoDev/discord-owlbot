@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        path: 'owlbot-repo'
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag owlbot:1
+      run: docker build . --file owlbot-repo/Dockerfile --tag owlbot:1

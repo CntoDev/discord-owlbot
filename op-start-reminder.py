@@ -1,18 +1,22 @@
 import discord
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 import os
 
-load_dotenv()
+# Load from .env (for local dev environments) or override with environment variables (for production)
+config = {
+        **dotenv_values('.env'),
+        **os.environ
+}
 
-CHANNEL_ID = os.enivon['OP_START_CHANNEL_ID']
-BOT_SECRET = os.environ['OWLBOT_SECRET']
+CHANNEL_ID = config['OP_START_CHANNEL_ID']
+BOT_SECRET = config['OWLBOT_SECRET']
 
 class MyClient(discord.Client):
      async def on_ready(self):
         # async for guild in client.fetch_guilds(limit=150):
         #         print(guild.name)
 
-        channel = self.get_channel(CHANNEL_ID)
+        channel = await self.fetch_channel(CHANNEL_ID)
         await channel.send("Tonight's OP is about to start, @here grab a drink and join us!")
         await self.close()
 

@@ -1,0 +1,1 @@
+35 19 * * 2,5 bash /discord-owlbot/op-reminder.sh >> /discord-owlbot/log 2>&1

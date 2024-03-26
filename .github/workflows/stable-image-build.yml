@@ -1,4 +1,4 @@
-name: Build Owlbot DEV Docker image
+name: Build Owlbot Docker image
 
 on:
   push:

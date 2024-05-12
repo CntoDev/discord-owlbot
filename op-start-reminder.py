@@ -9,7 +9,14 @@ config = {
 }
 
 CHANNEL_ID = config['OP_START_CHANNEL_ID']
-BOT_SECRET = config['OWLBOT_SECRET']
+
+# Read bot token for Discord auth from docker-compose secrets
+BOT_SECRET = None
+with open('/run/secrets/discord_token', 'r') as f:
+        BOT_SECRET = config['OWLBOT_SECRET']
+
+if BOT_SECRET is None:
+        raise ValueError("Unable to read Discord token")
 
 class MyClient(discord.Client):
      async def on_ready(self):

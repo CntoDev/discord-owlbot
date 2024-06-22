@@ -22,6 +22,7 @@ OP_START_CHANNEL_ID=<OP_START_CHANNEL_ID>   # The ID of the channel where operat
 
 These parameters can be passed to Owlbot in two different ways:
 
+
 1. As system environment variables, for example `export OWLBOT_SECRET=1234`
 2. As `.env` file in the same directory as the `.env.template`
 

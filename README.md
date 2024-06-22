@@ -14,10 +14,9 @@ You can follow [this guide](https://discordpy.readthedocs.io/en/stable/discord.h
 
 ### 2. Gather the required parameters
 
-Within CNTO, the Owlbot is deployed on the `Tools Server`. It requires a few parameters as described in the `.env.template` file, namely:
+Within CNTO, the Owlbot is deployed on the `Tools Server`. It requires a few parameters as described in the `.env.template` file, namely
 
 ```language=config
-OWLBOT_SECRET=<OWLBOT_SECRET>               # The bot's secret obtained on the Discord Developer Portal
 OP_START_CHANNEL_ID=<OP_START_CHANNEL_ID>   # The ID of the channel where operations reminders will be posted
 ```
 

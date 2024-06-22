@@ -24,7 +24,7 @@ class MyClient(discord.Client):
         #         print(guild.name)
 
         channel = await self.fetch_channel(CHANNEL_ID)
-        await channel.send("Tonight's OP is about to start, @here grab a drink and join us!")
+        await channel.send("Tonight's mission will start soon. <@&220093887518081024> and <@&665323023699673108> grab a drink and join us!")
         await self.close()
 
 intents = discord.Intents()

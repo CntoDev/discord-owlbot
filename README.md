@@ -6,7 +6,7 @@ Owlbot is CNTO's omnipresent assistant. It is currently implemented as a TeamSpe
 
 ## Installation guide
 
-Owlbot is available as [a Docker image](https://hub.docker.com/repository/docker/cntoarma/owlbot/general), published on CNTO's DockerHub registry.
+Owlbot is available as [a Docker image](https://hub.docker.com/repository/docker/cntoarma/owlbot/general), published on CNTO's DockerHub registry. Two versions are currently maintained: `dev` for development environments and `latest` for production environments.
 
 ### 1. Create a Discord application from the Discord Developer Portal
 
@@ -14,13 +14,12 @@ You can follow [this guide](https://discordpy.readthedocs.io/en/stable/discord.h
 
 ### 2. Gather the required parameters
 
-Within CNTO, the Owlbot is deployed on the `Tools Server`. It requires a few parameters as described in the `.env.template` file, namely
+Within CNTO, the Owlbot is deployed on the `Tools Server`. It requires two parameters to run.
 
-```language=config
-OP_START_CHANNEL_ID=<OP_START_CHANNEL_ID>   # The ID of the channel where operations reminders will be posted
-```
+ 1. Discord channel id to post event reminders, this makes use of `.env` file (find a template in the `.env.template` file)
+ 2. Discord bot token to authenticate, this is passed using [docker-compose secrets](https://docs.docker.com/compose/use-secrets/). A plain text file named `discord-token.txt` should be placed in the same directory as `docker-compose.yml`, reference `discord-token.txt.template` for an example.
 
-These parameters can be passed to Owlbot in two different ways:
+The `.env` parameters can be passed to Owlbot in two different ways:
 
 
 1. As system environment variables, for example `export OWLBOT_SECRET=1234`
@@ -32,20 +31,16 @@ Owlbot will try to load from a `.env` file, falling back to system variables. If
 
 ### 3. Run the Docker image
 
-Launch a container based on the Owlbot Docker image, for example:
+Start the container through `docker-compose` to ensure proper parameters and secrets loading.
 
 ```bash
-docker run -d -e OWLBOT_SECRET=<YOUR_SECRET_HERE> -e OP_START_CHANNEL_ID=<YOUR_CHANNEL_ID_HERE> cntoarma/owlbot:[stable|dev]
+docker-compose up -d
 ```
 
-If you still want to use a `.env` you can avoid passing environment variables to the run command, for example:
+Is the only command you need to get Owlbot up and running.
 
-```bash
-docker run -d --env-file .env cntoarma/owlbot:[stable|dev]
-```
+### Updating the crontab file
 
-**Note** using `docker-compose` is preferred in production environments as it can also handle container restarts, ensuring the Owlbot is operational all the time. 
+By default, the Owlbot will send join reminders 10 minutes before our events start (19:35 CET / CEST). This is configured in the `crontab.txt` file that gets installed inside the Owlbot container upon image build. Changing the `crontab.txt` file content and restarting the container or `docker-compose` execution will have no impact on the actual cron entry installed.
 
-#### Update the crontab file
-
-By default, the Owlbot will send join reminders 10 minutes before our events start (19:35 CET / CEST). This is configured in the `crontab.txt` file that gets installed inside the Owlbot container upon build. If you need to change the 
+If you need to change the cron entry for debugging purposes without triggering an image rebuild, get access to a shell within the container (only `/bin/sh` since it's based on an `alpine` image) and edit the crontab manually, for example with `crontab -e`.

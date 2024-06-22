@@ -7,6 +7,8 @@ services:
     image: cntoarma/owlbot:dev
     secrets:
       - discord_token
+    environment:
+      - "TZ=Europe/Stockholm"
 
 secrets:
   discord_token:

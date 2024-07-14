@@ -49,7 +49,6 @@ intents.message_content = True
 intents.members = True
 
 if __name__ == '__main__':
-    print(BOT_SECRET)
     if len(sys.argv) == 1:
         print("Starting member welcome workflow")
         client = OwlbotMemberWelcome(intents=intents)

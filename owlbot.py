@@ -1,17 +1,22 @@
-import datetime
-import discord
-from dotenv import load_dotenv
 import os
+import sys
+import discord
 
-load_dotenv()
+# Discord secret and configuration variables retrieval
+BOT_SECRET = None
+try:
+    with open('/run/secrets/discord_token', 'r') as f:
+        BOT_SECRET = f.read()
+except FileNotFoundError:
+    print("No docker secret")
+    exit(1)
 
-CHANNEL_ID = os.environ['OP_START_CHANNEL_ID']
-BOT_SECRET = os.environ['OWLBOT_SECRET']
+NOTIFICATION_CHANNEL_ID = os.environ['NOTIFICATION_CHANNEL_ID']
+WELCOME_CHANNEL_ID= os.environ['WELCOME_CHANNEL_ID']
 GUILD_ID = os.environ['GUILD_ID']
 INTERVIEWER_ROLE_ID= os.environ['INTERVIEWER_ROLE_ID']
-WELCOME_CHANNEL_ID= os.environ['WELCOME_CHANNEL_ID']
-CNTO_TIMEZONE = datetime.timezone(datetime.timedelta(hours=1),"CNTO_TIMEZONE")
-class MyClient(discord.Client):
+
+class OwlbotMemberWelcome(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
 
@@ -30,8 +35,29 @@ class MyClient(discord.Client):
         embed.set_footer(text=f'{member.joined_at.strftime('%a %d %b %Y, %I:%M%p')}')
         await guild.system_channel.send(embed = embed)
 
+
+class OwlbotOperationNotification(discord.Client):
+    async def on_ready(self):
+        channel = await self.fetch_channel(NOTIFICATION_CHANNEL_ID)
+        # TODO: remove embedded role ids and overall message to make it configurable
+        await channel.send("Tonight's mission will start soon. <@&220093887518081024> and <@&665323023699673108> grab a drink and join us!")
+        await self.close()
+
 intents = discord.Intents.default()
+intents.messages = True
 intents.message_content = True
 intents.members = True
-client = MyClient(intents=intents)
-client.run(BOT_SECRET)
+
+if __name__ == '__main__':
+    print(BOT_SECRET)
+    if len(sys.argv) == 1:
+        print("Starting member welcome workflow")
+        client = OwlbotMemberWelcome(intents=intents)
+    elif len(sys.argv) == 2 and sys.argv[1] == "operation-notification":
+        print("Starting operation notification workflow")
+        client = OwlbotOperationNotification(intents=intents)
+    else:
+        print("Invalid parameter. Only 'operation-notification' is allowed.")
+        exit(1)
+    
+    client.run(BOT_SECRET)

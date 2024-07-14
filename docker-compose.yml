@@ -1,0 +1,15 @@
+version: "3"
+services:
+  owlbot:
+    container_name: owlbot
+    # restart: unless-stopped
+    env_file: ./config
+    image: cntoarma/owlbot:dev
+    secrets:
+      - discord_token
+    environment:
+      - "TZ=Europe/Stockholm"
+
+secrets:
+  discord_token:
+    file: ./discord-token.txt

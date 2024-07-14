@@ -1,6 +1,9 @@
 # CNTO Custom
 log
 *.log
+.env.local*
+config.henrik-test-server
+discord-token.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

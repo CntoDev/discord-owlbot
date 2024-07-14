@@ -1,6 +1,6 @@
 FROM alpine:3.19
 
-ADD owlbot-repo /owlbot
+ADD . /owlbot
 WORKDIR /owlbot
 
 RUN apk add --no-cache python3 py3-pip

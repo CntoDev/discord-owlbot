@@ -16,10 +16,11 @@ jobs:
       name: Checkout repository
       uses: actions/checkout@v4
       with:
-        path: 'owlbot-repo'
+        path: 'discord-owlbot'
     - 
       name: Build the Docker image
-      run: docker build . --file owlbot-repo/Dockerfile --tag cntoarma/owlbot:latest
+      working-directory: discord-owlbot
+      run: docker build . --file Dockerfile --tag cntoarma/owlbot:1.0.0
     -
       name: Authenticate to CNTO DockerHub
       uses: docker/login-action@v3
@@ -28,4 +29,4 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
       name: Publish image to DockerHub
-      run: docker image push cntoarma/owlbot:latest
+      run: docker image push cntoarma/owlbot:1.0.0

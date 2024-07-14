@@ -3,7 +3,7 @@ services:
   owlbot:
     container_name: owlbot
     # restart: unless-stopped
-    env_file: .env
+    env_file: ./config
     image: cntoarma/owlbot:dev
     secrets:
       - discord_token

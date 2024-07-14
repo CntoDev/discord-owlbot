@@ -32,7 +32,7 @@ class OwlbotMemberWelcome(discord.Client):
         embed.add_field(name="", value=f"Hello {member.mention}, Welcome to Carpe Noctem Tactical Operations. Feel free to message an <@&{INTERVIEWER_ROLE_ID}> or take a look at <#{WELCOME_CHANNEL_ID}> if you have any questions! ", inline=True)
         
         # member joined_at function returns datetime object, strf formats output as follows: Day of Week, Number of day, initials of month, year, hour of day in GMT timezone
-        embed.set_footer(text=f'{member.joined_at.strftime('%a %d %b %Y, %I:%M%p')}')
+        embed.set_footer(text=f"{member.joined_at.strftime('%a %d %b %Y, %I:%M%p')}")
         await guild.system_channel.send(embed = embed)
 
 

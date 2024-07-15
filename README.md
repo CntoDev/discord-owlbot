@@ -1,46 +1,60 @@
 # CNTO Owlbot
 
-## What is the Owlbot
+## What is Owlbot
 
-Owlbot is CNTO's omnipresent assistant. It is currently implemented as a TeamSpeak user for populating our `stats` pages, and on Discord for automated member pings before our operations begin. R&D has plans to expand the Discord presence to enable staff members to carry out their tasks directly from our Discord, but this is a WIP.
+Owlbot is CNTO's omnipresent assistant. It is currently implemented as a TeamSpeak user for populating our `stats` pages, and on Discord for automated member pings before our operations begin. R&D has plans to expand the Discord presence to enable staff members to carry out their tasks directly from our Discord, but this is a WIP. Currently, this repository contains the Discord features of the bot.
 
-## Installation guide
+## Owlbot features
 
-Owlbot is available as [a Docker image](https://hub.docker.com/repository/docker/cntoarma/owlbot/general), published on CNTO's DockerHub registry. Two versions are currently maintained: `dev` for development environments and `latest` for production environments.
+ - Welcome new users joining the Discord server. Upon starting the Docker image, Owlbot connects to the Guild passed as argument and waits for new users to join the guild; whenever a new joiner is detected, Owlbot sends a welcome message pinging the new joiner and providing useful links and references.
+ - Arma3 operation notification. An optional `operation-notification` command can be passed to `owlbot.py`, in this case Owlbot sends a fire-and-forget type notification to a preset channel pinging community members to remind them to join an upcoming Arma3 operation. The command can be invoked on the host machine (i.e. from outside the Docker container) through `docker exec` or `docker compose exec` to leverage cron jobs.
 
-### 1. Create a Discord application from the Discord Developer Portal
+## Running Owlbot
 
-You can follow [this guide](https://discordpy.readthedocs.io/en/stable/discord.html) to create a bot application. CNTO has two versions of the Owlbot managed by R&D: OWL and OWL Dev. The key takeaway from this step is to obtain the bot's secret, used to authenticate the bot against Discord's API.
+Owlbot is available as [a Docker image](https://hub.docker.com/repository/docker/cntoarma/owlbot/general), published on CNTO's DockerHub registry. The `cntoarma/owlbot:dev` image is reserved for development builds, for production use the latest tag available based on SemVer (we are working on creating the `cntoarma/owlbot:latest` tag).
 
-### 2. Gather the required parameters
+You should run Owlbot through `docker compose`, find an example configuration in the `docker-compose.yml` file.
 
-Within CNTO, the Owlbot is deployed on the `Tools Server`. It requires two parameters to run.
+If you are a CNTO Staff member and looking for how R&D deployed this bot, refer to the Forum wiki pages.
 
- 1. Discord channel id to post event reminders, this makes use of `.env` file (find a template in the `.env.template` file)
- 2. Discord bot token to authenticate, this is passed using [docker-compose secrets](https://docs.docker.com/compose/use-secrets/). A plain text file named `discord-token.txt` should be placed in the same directory as `docker-compose.yml`, reference `discord-token.txt.template` for an example.
+### Passing Discord authentication token to Owlbot
 
-The `.env` parameters can be passed to Owlbot in two different ways:
+Owlbot reads the Discord authentication token from a local file (`/run/secrets/discord_secret`). If using `docker compose`, leverage [the `secrets` section](https://docs.docker.com/compose/use-secrets/). If you are not using docker compose, you will need to [set up the secret](https://docs.docker.com/engine/swarm/secrets/#about-secrets) yourself.
 
+### Required parameters
 
-1. As system environment variables, for example `export OWLBOT_SECRET=1234`
-2. As `.env` file in the same directory as the `.env.template`
+Separate from the Discord token, a few configuration parameters are required and Owlbot reads them from environment variables. Find an example configuration (suitable for CNTO production environment) in the `config` file. Using docker compose, we pass parameters with the `env_file` command; if you don't use docker compose you will need to pass them one by one upon starting the container.
 
-Owlbot will try to load from a `.env` file, falling back to system variables. If both are present, system variables are used.
-
-**Note** if you use the Owlbot Docker image from our public registry, the `.env` file is not yet created by the build process so you need to rely on environment variables. The `.env` file mechanism is supported for local development environments. We do not plan on adding `.env` file support for staging / production environments.
-
-### 3. Run the Docker image
-
-Start the container through `docker-compose` to ensure proper parameters and secrets loading.
-
-```bash
-docker-compose up -d
+```
+NOTIFICATION_CHANNEL_ID     # Discord channel where members are pinged before operations begin
+WELCOME_CHANNEL_ID          # Discord channel where newjoiners are linked to for reading rules and regulations
+GUILD_ID                    # Id of the Discord guild (aka Discord server)
+INTERVIEWER_ROLE_ID         # Role id of interviewing team, used to ping relevant staff whenever a new user joins
 ```
 
-Is the only command you need to get Owlbot up and running.
+The ids listed above can be found on the Discord server by right clicking on the relevant item (i.e. channel, role). To get the "Copy ID" option, make sure you enable Discord Developer mode on your client.
 
-### Updating the crontab file
+## Contributing
 
-By default, the Owlbot will send join reminders 10 minutes before our events start (19:35 CET / CEST). This is configured in the `crontab.txt` file that gets installed inside the Owlbot container upon image build. Changing the `crontab.txt` file content and restarting the container or `docker-compose` execution will have no impact on the actual cron entry installed.
+There is not git workflow set in stone, we try to keep things as simple as possible. If you want to contribute to Owlbot: create a new branch from `main`, push your changes to the repository in a feature branch (naming should be along the lines of `feature/a_relevant_name`), open a Pull Request and request a review.
+We try to keep Issues updated with a list of tasks, but no guarantees.
 
-If you need to change the cron entry for debugging purposes without triggering an image rebuild, get access to a shell within the container (only `/bin/sh` since it's based on an `alpine` image) and edit the crontab manually, for example with `crontab -e`.
+### Setting up a local development environment
+
+The use of `virtualenv` or `conda` is recommended to run a Python virtual environment. When working on a new feature or making moderate-to-heavy changes on the codebase, you might want to test the code locally before containerising the application. This requires a local setup of the Discord auth token and environment variables.
+
+ - To pass the Discord auth token: we have a testing Discord server, ask R&D Manager for the token. Create a file the Owlbot can read (i.e. `/run/secrets/discord_token`) on your filesystem containing the token.
+ - To pass the environment variables: there are preconfigured options in the `config` and `config.cnto-test-server` files, to export their values to your environment you can run the following:
+    ```bash
+    set -o allexport
+    source CONFIGURATION_FILE
+    set +o allexport
+    ```
+
+### Building Docker images
+
+If developing locally, you'll want to make sure the changes in the application don't break the Docker image so build the image with the `experimental` tag and update `docker-compose.yml` to use said image. Do not push the image tagged as `experimental` to DockerHub.
+
+This GitHub repository is configured with workflows that automatically build, tag and push the Docker image to CNTO DockerHub registry. The workflows are enabled on the `main` and `dev` branches (workflow specification are contained in the `.github/workflows` directory of this repository). Whenever a new commit is pushed to either branches, workflows are available to start although they require manual approval from the R&D team to proceed.
+
+If you are releasing a new version of Owlbot, make sure to change the tag in `.github/workflows/stable-image-build.yml` (we are working on automating tag release using git tags).
